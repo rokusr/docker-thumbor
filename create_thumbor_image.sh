@@ -1,7 +1,29 @@
 #!/bin/bash
+
+if [[ $# -eq 0 ]] ; then
+    echo "Usage: .create_thumbor_image.sh -t thumbor-version -p profile";
+    exit 0
+fi
+
+while getopts "t:p:h" option; do
+    case "${option}"
+        in
+        t) THUMBOR_VERSION=${OPTARG};;
+        p) PROFILE=${OPTARG};;
+        h ) echo "Usage: .create_thumbor_image.sh -t thumbor-version -p profile"; exit 0;;
+        \? ) echo "Usage: .create_thumbor_image.sh -t thumbor-version -p profile"; exit 0;;
+    esac
+done
+
 if [ -z "$THUMBOR_VERSION" ]
 then
   THUMBOR_VERSION="6.3.0"
+fi
+
+if [ -z "$PROFILE" ]
+then
+  echo "PROFILE not provided. Exiting!"
+  exit 1
 fi
 
 # git clone git@github.com:rokusr/docker-thumbor.git
@@ -30,3 +52,8 @@ docker tag sr/thumbor sr/thumbor:latest
 echo "--> CLEANUP for pypiserver and builder network"
 docker rm -f pypiserver
 docker network rm builder
+
+echo "--> PUSHING sr/thumbor:latest to 638782101961.dkr.ecr.us-east-1.amazonaws.com/sr/thumbor:latest"
+eval $( echo `aws ecr --profile $PROFILE get-login --no-include-email --region us-east-1` )
+docker tag sr/thumbor:latest 638782101961.dkr.ecr.us-east-1.amazonaws.com/sr/thumbor:latest
+docker push 638782101961.dkr.ecr.us-east-1.amazonaws.com/sr/thumbor:latest
