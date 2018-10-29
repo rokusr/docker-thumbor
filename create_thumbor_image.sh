@@ -46,14 +46,12 @@ echo "--> BUILDING apsl/thumbor"
 docker build --network builder -f thumbor/Dockerfile -t sr/thumbor thumbor/
 echo "--> TAGGING sr/thumbor:$THUMBOR_VERSION"
 docker tag sr/thumbor sr/thumbor:$THUMBOR_VERSION
-echo "--> TAGGING sr/thumbor:latest"
-docker tag sr/thumbor sr/thumbor:latest
 
 echo "--> CLEANUP for pypiserver and builder network"
 docker rm -f pypiserver
 docker network rm builder
 
-echo "--> PUSHING sr/thumbor:latest to 638782101961.dkr.ecr.us-east-1.amazonaws.com/sr/thumbor:latest"
+echo "--> PUSHING sr/thumbor:$THUMBOR_VERSION to 638782101961.dkr.ecr.us-east-1.amazonaws.com/sr/thumbor:$THUMBOR_VERSION"
 eval $( echo `aws ecr --profile $PROFILE get-login --no-include-email --region us-east-1` )
-docker tag sr/thumbor:latest 638782101961.dkr.ecr.us-east-1.amazonaws.com/sr/thumbor:latest
-docker push 638782101961.dkr.ecr.us-east-1.amazonaws.com/sr/thumbor:latest
+docker tag sr/thumbor:$THUMBOR_VERSION 638782101961.dkr.ecr.us-east-1.amazonaws.com/sr/thumbor:$THUMBOR_VERSION
+docker push 638782101961.dkr.ecr.us-east-1.amazonaws.com/sr/thumbor:$THUMBOR_VERSION
